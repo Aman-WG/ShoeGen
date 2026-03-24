@@ -7,7 +7,6 @@ import type { AvatarPayload, ShoeGenMessage, ParentMessage, ShoeConfig } from '.
  */
 export function useParentBridge() {
   const [avatarData, setAvatarData] = useState<AvatarPayload | null>(null);
-  const [isEmbedded, setIsEmbedded] = useState(false);
   const [closeRequested, setCloseRequested] = useState(false);
   const parentOriginRef = useRef<string>('*');
 
@@ -15,7 +14,6 @@ export function useParentBridge() {
 
   useEffect(() => {
     const embedded = window.self !== window.top;
-    setIsEmbedded(embedded);
 
     if (!embedded) return;
 
@@ -57,12 +55,17 @@ export function useParentBridge() {
     [send],
   );
 
+  const sendSave = useCallback(
+    (shoeConfig: ShoeConfig, shoeResult?: unknown) =>
+      send({ type: 'shoegen:save', payload: { shoeConfig, shoeResult } }),
+    [send],
+  );
+
   const sendPhaseChange = useCallback(
     (phase: string) => send({ type: 'shoegen:phase-change', payload: { phase } }),
     [send],
   );
 
-  const sendRetry = useCallback(() => send({ type: 'shoegen:retry' }), [send]);
   const sendClose = useCallback(() => send({ type: 'shoegen:close' }), [send]);
   const sendSpendCoins = useCallback(
     (amount: number, reason = 'shoe-generation') =>
@@ -71,13 +74,12 @@ export function useParentBridge() {
   );
 
   return {
-    isEmbedded,
     avatarData,
     closeRequested,
     clearCloseRequest,
     sendEquipped,
+    sendSave,
     sendPhaseChange,
-    sendRetry,
     sendClose,
     sendSpendCoins,
   };

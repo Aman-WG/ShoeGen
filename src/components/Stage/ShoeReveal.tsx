@@ -7,9 +7,7 @@ const REVEAL_SHOE_URL = '/assets/mu_afshoe.png';
 
 interface ShoeRevealProps {
   onEquip: () => void;
-  onRetry: () => void;
   onHover?: () => void;
-  avatarImageUrl?: string;
   shoeResult: ShoeGenerationResult | null;
   generationError?: { source: 'ai' | 'fallback'; error?: string } | null;
 }
@@ -39,12 +37,10 @@ const sparkles = Array.from({ length: SPARKLE_COUNT }, (_, i) => {
 
 export function ShoeReveal({
   onEquip,
-  onRetry,
   onHover,
   shoeResult,
   generationError,
 }: ShoeRevealProps) {
-  const isFallback = generationError?.source === 'fallback';
   const [settled, setSettled] = useState(false);
   const shoeName = toTwoWordName(shoeResult?.shoeName);
 
@@ -74,7 +70,7 @@ export function ShoeReveal({
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.2, duration: 0.35, ease: 'easeOut' }}
       >
-        {shoeName}
+        {`${shoeName} Sneakers`}
       </motion.div>
 
       {/* White flash + star burst (sync with star sound) */}
@@ -192,7 +188,7 @@ export function ShoeReveal({
                   delay: 1.4 + s.delay * 0.3,
                   duration: 1.4,
                   repeat: Infinity,
-                  repeatDelay: Math.random() * 1.2,
+                  repeatDelay: s.delay * 0.6,
                   ease: 'easeInOut',
                 }}
               />
@@ -209,16 +205,9 @@ export function ShoeReveal({
             animate={{ y: 0, opacity: 1 }}
             transition={{ delay: 0.2, type: 'spring', stiffness: 150, damping: 18 }}
           >
-            {isFallback && (
-              <div className="reveal-unlock__fallback-notice">
-                {generationError?.error || 'AI unavailable — showing preview kicks'}
-              </div>
-            )}
-            <button className="pixel-btn pixel-btn--ghost" onClick={onRetry} onMouseEnter={onHover}>
-              Retry
-            </button>
+            <span className="reveal-unlock__cta-hint">Done tweaking? Lock it in.</span>
             <button className="pixel-btn" onClick={onEquip} onMouseEnter={onHover}>
-              Equip Kicks
+              Save &amp; Exit
             </button>
           </motion.div>
         )}

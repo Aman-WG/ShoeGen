@@ -4,20 +4,21 @@ import { Stage } from './Stage';
 import { Console } from './Console';
 import { IntroSplash } from './IntroSplash';
 import { ConfirmExitModal } from './ConfirmExitModal';
+import { SpendConfirmModal } from './SpendConfirmModal';
 import { useTypewriter } from '../hooks/useTypewriter';
 import { useSound } from '../hooks/useSound';
 import { soundManager } from '../sound/SoundManager';
 import { useSynthesizer } from '../hooks/useSynthesizer';
 import { useBridge } from '../context/ParentBridgeContext';
 import { PHASE } from '../constants/phases';
-import { DIALOGUE } from '../constants/dialogue';
+import { DIALOGUE, PROCESSING_LINES } from '../constants/dialogue';
 import { generateShoe } from '../engine/backend/shoe-generator';
 import type { ShoeGenerationResult } from '../engine/types';
 
-const CONSOLE_ENTRANCE_DELAY = 800;
-const TYPEWRITER_START_DELAY = 600;
+const CONSOLE_ENTRANCE_DELAY = 0;
+const TYPEWRITER_START_DELAY = 300;
 const GENERATION_DURATION = 10000;
-const INITIATE_COST = 2000;
+const GENERATE_COST = 10000;
 
 export function Layout() {
   const synth = useSynthesizer();
@@ -32,22 +33,22 @@ export function Layout() {
   const [attemptCount, setAttemptCount] = useState(1);
   const [liveResult, setLiveResult] = useState<ShoeGenerationResult | null>(null);
   const [showExitModal, setShowExitModal] = useState(false);
-  const [isInitiatingCharge, setIsInitiatingCharge] = useState(false);
+  const [showSpendConfirm, setShowSpendConfirm] = useState(false);
+  const [pendingPrompt, setPendingPrompt] = useState('');
+  const [pendingStyle, setPendingStyle] = useState('');
   const phaseRef = useRef(synth.phase);
   phaseRef.current = synth.phase;
-  const initiateFlowTimeoutRef = useRef<number | null>(null);
   const coinBalance =
     typeof bridge.avatarData?.coinBalance === 'number' ? bridge.avatarData.coinBalance : null;
-  const canAffordInitiation = coinBalance == null || coinBalance >= INITIATE_COST;
-  const shortfall = coinBalance == null ? 0 : Math.max(0, INITIATE_COST - coinBalance);
+  const canAffordGeneration = coinBalance == null || coinBalance >= GENERATE_COST;
 
+  // ── Dismiss handling ──
   const requestDismiss = useCallback(() => {
     const phase = phaseRef.current;
+    bridge.clearCloseRequest();
     if (phase === PHASE.PROCESSING) {
-      bridge.clearCloseRequest();
       return;
     }
-    bridge.clearCloseRequest();
     if (phase === PHASE.REVEAL) {
       setShowExitModal(true);
     } else {
@@ -66,8 +67,14 @@ export function Layout() {
   }, []);
 
   useEffect(() => {
-    if (bridge.closeRequested) requestDismiss();
-  }, [bridge.closeRequested]);
+    if (!bridge.closeRequested) return;
+    const t = window.setTimeout(() => requestDismiss(), 0);
+    return () => window.clearTimeout(t);
+  }, [bridge.closeRequested, requestDismiss]);
+
+  useEffect(() => {
+    phaseRef.current = synth.phase;
+  }, [synth.phase]);
 
   useEffect(() => {
     const handleKey = (e: KeyboardEvent) => {
@@ -81,14 +88,6 @@ export function Layout() {
     window.addEventListener('keydown', handleKey);
     return () => window.removeEventListener('keydown', handleKey);
   }, [requestDismiss, showExitModal]);
-
-  useEffect(() => {
-    return () => {
-      if (initiateFlowTimeoutRef.current != null) {
-        window.clearTimeout(initiateFlowTimeoutRef.current);
-      }
-    };
-  }, []);
 
   const handleIntroComplete = useCallback(() => {
     setShowIntro(false);
@@ -108,56 +107,79 @@ export function Layout() {
     return () => clearTimeout(t);
   }, [synth.phase, showConsole]);
 
+  // ── Cycling processing lines ──
+  const [processingLine, setProcessingLine] = useState(() =>
+    PROCESSING_LINES[Math.floor(Math.random() * PROCESSING_LINES.length)]
+  );
+
+  useEffect(() => {
+    if (synth.phase !== PHASE.PROCESSING) return;
+    setProcessingLine(PROCESSING_LINES[Math.floor(Math.random() * PROCESSING_LINES.length)]);
+    const interval = setInterval(() => {
+      setProcessingLine((prev) => {
+        let next = prev;
+        while (next === prev) {
+          next = PROCESSING_LINES[Math.floor(Math.random() * PROCESSING_LINES.length)];
+        }
+        return next;
+      });
+    }, 2000);
+    return () => clearInterval(interval);
+  }, [synth.phase]);
+
   const currentLines = useMemo(() => {
-    if (synth.phase === PHASE.IDLE && coinBalance != null && !canAffordInitiation) {
-      return [
-        'Shoe workshop fee detected: 2,000 coins.',
-        `Wallet shortfall: ${shortfall.toLocaleString()} coins. Earn a bit more in the shop to unlock the forge.`,
-      ];
-    }
     if (synth.phase === PHASE.IDLE && attemptCount > 1) {
       return [
-        `Re-attempting shoe generation: Attempt ${attemptCount}`,
+        `Pair #${attemptCount} incoming. Forge primed.`,
         attemptCount === 2
-          ? "Previous design didn't hit. Let's run it back."
+          ? "Last pair's locked in. Let's cook something new."
           : attemptCount === 3
-            ? 'Persistence detected. The forge remembers your style.'
-            : "You're practically a regular now. Fire when ready.",
+            ? "Three pairs deep. The forge's warming up to you."
+            : "You're building a whole collection. Go off.",
       ];
     }
+    if (synth.phase === PHASE.PROCESSING) {
+      return [processingLine];
+    }
     return DIALOGUE[synth.phase].map((d) => d.text);
-  }, [synth.phase, attemptCount, coinBalance, canAffordInitiation, shortfall]);
+  }, [synth.phase, attemptCount, processingLine]);
 
   const tw = useTypewriter(currentLines, startTyping, {
     speed: 25,
-    lineDelay: 400,
     onChar: () => sfx.typewriterTick(),
     onLineComplete: () => sfx.keystroke(),
   });
 
-  const handleInitiate = useCallback(() => {
-    if (!canAffordInitiation || isInitiatingCharge) return;
-    if (coinBalance != null) {
-      bridge.sendSpendCoins(INITIATE_COST, 'shoe-generation');
-      setIsInitiatingCharge(true);
-    }
-    sfx.initiate();
-    const startDelay = coinBalance != null ? 900 : 0;
-    if (initiateFlowTimeoutRef.current != null) {
-      window.clearTimeout(initiateFlowTimeoutRef.current);
-    }
-    initiateFlowTimeoutRef.current = window.setTimeout(() => {
-      setIsInitiatingCharge(false);
+  // Auto-transition from IDLE → PROMPT once greeting dialogue finishes typing
+  useEffect(() => {
+    if (synth.phase !== PHASE.IDLE || !tw.isComplete) return;
+    const t = setTimeout(() => {
       synth.setPhase(PHASE.PROMPT);
-      initiateFlowTimeoutRef.current = null;
-    }, startDelay);
-  }, [bridge, canAffordInitiation, coinBalance, isInitiatingCharge, sfx, synth]);
+    }, 600);
+    return () => clearTimeout(t);
+  }, [synth.phase, tw.isComplete, synth]);
 
   const aiAbortRef = useRef<AbortController | null>(null);
   const genResultRef = useRef<{ result: ShoeGenerationResult; source: 'ai' | 'fallback'; error?: string } | null>(null);
   const revealTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const handleGenerateShoe = useCallback((prompt: string, style: string) => {
+  const handleRequestGenerate = useCallback((prompt: string, style: string) => {
+    if (!canAffordGeneration) return;
+    setPendingPrompt(prompt);
+    setPendingStyle(style);
+    setShowSpendConfirm(true);
+  }, [canAffordGeneration]);
+
+  const handleConfirmGenerate = useCallback(() => {
+    setShowSpendConfirm(false);
+    const prompt = pendingPrompt;
+    const style = pendingStyle;
+
+    // Charge coins on generate
+    if (coinBalance != null) {
+      bridge.sendSpendCoins(GENERATE_COST, 'shoe-generation');
+    }
+
     sfx.glitch();
     sfx.startMachine();
     sfx.startLaser();
@@ -226,23 +248,13 @@ export function Layout() {
       synth.setShaking(false);
       synth.setPhase(PHASE.REVEAL);
     }, GENERATION_DURATION);
-  }, [sfx, synth]);
+  }, [sfx, synth, bridge, coinBalance, pendingPrompt, pendingStyle]);
 
   const handleEquipShoe = useCallback(() => {
     sfx.equip();
     bridge.sendEquipped({ style: synth.selectedStyle, prompt: synth.prompt }, liveResult);
   }, [sfx, bridge, synth.prompt, synth.selectedStyle, liveResult]);
 
-  const handleRetry = useCallback(() => {
-    sfx.select();
-    bridge.sendRetry();
-    setAttemptCount((n) => n + 1);
-    setLiveResult(null);
-    setIsInitiatingCharge(false);
-    synth.reset();
-  }, [sfx, synth, bridge]);
-
-  const consoleHeight = synth.phase === PHASE.PROMPT ? '30%' : '20%';
   const hideConsole = synth.phase === PHASE.REVEAL;
 
   return (
@@ -264,31 +276,24 @@ export function Layout() {
             phase={synth.phase}
             isShaking={synth.isShaking}
             onEquipShoe={handleEquipShoe}
-            onRetry={handleRetry}
             onHover={sfx.hover}
-            avatarImageUrl={bridge.avatarData?.avatarImageUrl}
             shoeResult={liveResult}
             generationError={synth.generationError}
           />
         </div>
 
         {showConsole && !hideConsole && (
-          <div
-            className="game-window__console"
-            style={{ height: consoleHeight, transition: 'height 0.4s ease' }}
-          >
+          <div className="game-window__console">
             <Console
               phase={synth.phase}
               displayedLines={tw.displayedLines}
               isTyping={tw.isTyping}
               isTypingComplete={tw.isComplete}
-              onInitiate={handleInitiate}
-              onGenerateShoe={handleGenerateShoe}
+              onGenerateShoe={handleRequestGenerate}
               onHover={sfx.hover}
               coinBalance={coinBalance}
-              initiateCost={INITIATE_COST}
-              canAffordInitiation={canAffordInitiation}
-              isInitiatingCharge={isInitiatingCharge}
+              generateCost={GENERATE_COST}
+              canAffordGeneration={canAffordGeneration}
             />
           </div>
         )}
@@ -299,6 +304,16 @@ export function Layout() {
           <ConfirmExitModal
             onSaveAndExit={handleSaveAndExit}
             onKeepTweaking={handleKeepTweaking}
+          />
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {showSpendConfirm && (
+          <SpendConfirmModal
+            cost={GENERATE_COST}
+            onConfirm={handleConfirmGenerate}
+            onCancel={() => setShowSpendConfirm(false)}
           />
         )}
       </AnimatePresence>

@@ -81,7 +81,6 @@
   bottom: 0;
   left: 0;
   right: 0;
-  height: var(--console-height);
   z-index: 10;
   padding: 0;
 }
@@ -497,7 +496,7 @@
   -webkit-backdrop-filter: blur(16px) saturate(1.2);
   border: none;
   border-radius: 0;
-  overflow: hidden;
+  overflow: visible;
   box-shadow: none;
   display: flex;
   flex-direction: column;
@@ -508,24 +507,11 @@
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
-  gap: 6px;
-  padding: 10px 28px 12px;
-  overflow: hidden;
+  gap: 16px;
+  padding: 16px 32px 12px;
+  overflow: visible;
   position: relative;
   z-index: 2;
-}
-
-.console__body--row {
-  flex-direction: row;
-  align-items: center;
-  justify-content: space-between;
-  gap: 24px;
-}
-
-.console__body--prompt {
-  justify-content: flex-start;
-  overflow-y: auto;
-  overflow-x: hidden;
 }
 
 
@@ -536,6 +522,7 @@
 .dialogue-box {
   flex-shrink: 0;
   overflow: hidden;
+  min-height: 24px;
 }
 
 .dialogue-box__scroll {
@@ -557,14 +544,6 @@
   text-shadow:
     0 0 6px rgba(0, 212, 255, 0.6),
     0 0 20px rgba(0, 212, 255, 0.2),
-    0 1px 2px rgba(0, 0, 0, 0.5);
-}
-
-.dialogue-line--error .dialogue-line__text {
-  color: #ff6b6b;
-  text-shadow:
-    0 0 6px rgba(255, 68, 68, 0.6),
-    0 0 20px rgba(255, 68, 68, 0.2),
     0 1px 2px rgba(0, 0, 0, 0.5);
 }
 
@@ -595,24 +574,6 @@
   gap: 8px;
   width: 100%;
 }
-
-.interaction-hint {
-  font-family: var(--font-mono);
-  font-size: 11px;
-  color: var(--shoe-accent-dim);
-  text-shadow: 0 0 4px rgba(0, 212, 255, 0.15);
-  text-align: center;
-  letter-spacing: 0.3px;
-}
-
-.interaction-placeholder {
-  font-family: var(--font-mono);
-  font-size: 12px;
-  color: var(--shoe-accent-dim);
-  text-shadow: 0 0 4px rgba(0, 212, 255, 0.15);
-  text-align: center;
-}
-
 
 /* ═══════════════════════════════════════════════════════════════
    9. PIXEL BUTTON — Neo retro sci-fi neon yellow CTA
@@ -691,128 +652,61 @@
 }
 
 
-/* Large variant for primary CTA */
-.pixel-btn--lg {
-  padding: 18px 48px;
-  font-size: 16px;
-  letter-spacing: 3px;
-  box-shadow:
-    -5px 0 0 0 #b89f00,
-    5px 0 0 0 #b89f00,
-    0 -5px 0 0 #b89f00,
-    0 5px 0 0 #b89f00,
-    0 0 24px rgba(255, 228, 48, 0.7),
-    0 0 60px rgba(255, 228, 48, 0.3),
-    0 0 120px rgba(255, 228, 48, 0.12);
-}
-
-.pixel-btn--lg:hover {
-  box-shadow:
-    -5px 0 0 0 #ccb300,
-    5px 0 0 0 #ccb300,
-    0 -5px 0 0 #ccb300,
-    0 5px 0 0 #ccb300,
-    0 0 32px rgba(255, 228, 48, 0.9),
-    0 0 80px rgba(255, 228, 48, 0.4),
-    0 0 140px rgba(255, 228, 48, 0.18);
-}
-
-
-/* Small variant for inline use */
-.pixel-btn--sm {
-  padding: 9px 20px;
-  font-size: 11px;
-  letter-spacing: 1.5px;
-  flex-shrink: 0;
-  box-shadow:
-    -3px 0 0 0 #b89f00,
-    3px 0 0 0 #b89f00,
-    0 -3px 0 0 #b89f00,
-    0 3px 0 0 #b89f00,
-    0 0 12px rgba(255, 228, 48, 0.5),
-    0 0 30px rgba(255, 228, 48, 0.2);
-}
-
-.pixel-btn--sm:hover {
-  box-shadow:
-    -3px 0 0 0 #ccb300,
-    3px 0 0 0 #ccb300,
-    0 -3px 0 0 #ccb300,
-    0 3px 0 0 #ccb300,
-    0 0 18px rgba(255, 228, 48, 0.7),
-    0 0 40px rgba(255, 228, 48, 0.3);
-}
-
-
-/* ═══════════════════════════════════════════════════════════════
-   11. INTERACTION AREA — layout helpers
-   ═══════════════════════════════════════════════════════════════ */
-
-.interaction-area__content--center {
+/* Generate/Forge button — row layout, matches input height */
+.pixel-btn--generate {
+  display: inline-flex;
+  flex-direction: row;
   align-items: center;
   justify-content: center;
+  gap: 16px;
+  padding: 0 24px;
+  height: 52px;
+  font-size: 14px;
+  letter-spacing: 2px;
+  flex-shrink: 0;
+  align-self: flex-start;
+  border-radius: 4px;
+  background: #FDE447;
+  box-shadow:
+    0 0 20px rgba(253, 228, 71, 0.5),
+    0 0 50px rgba(253, 228, 71, 0.2);
 }
 
-.idle-cta {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 14px;
-  min-width: 520px;
+.pixel-btn--generate:hover {
+  background: #fff06a;
+  box-shadow:
+    0 0 28px rgba(253, 228, 71, 0.7),
+    0 0 70px rgba(253, 228, 71, 0.3);
 }
 
-.idle-cta__debit {
-  position: absolute;
-  top: 10px;
-  right: 54px;
-  align-items: center;
-  pointer-events: none;
-  z-index: 4;
-}
-
-.idle-cta__launch-btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 22px;
-  min-width: 460px;
-  padding: 14px 22px 14px 24px;
-}
-
-.idle-cta__launch-copy {
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-  font-size: 20px;
-  letter-spacing: 1.2px;
+.generate-btn__label {
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 16px;
+  letter-spacing: 0.06em;
   line-height: 1;
+  color: #000;
 }
 
-.idle-cta__launch-icon {
-  font-size: 27px;
-  line-height: 1;
-}
-
-.idle-cta__cost-pill {
+.generate-btn__cost-pill {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  padding: 8px 12px;
+  gap: 6px;
+  padding: 6px 8px;
   border-radius: 4px;
   background: rgba(9, 9, 9, 0.8);
   color: #fff;
   font-family: var(--font-mono);
-  font-size: 16px;
-  font-weight: 800;
+  font-size: 14px;
+  font-weight: 700;
   letter-spacing: 0.6px;
-  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.05);
+  line-height: 1;
 }
 
-.idle-cta__coin-icon {
+.generate-btn__coin-icon {
   position: relative;
-  width: 22px;
-  height: 22px;
+  width: 18px;
+  height: 18px;
   border-radius: 50%;
   background:
     radial-gradient(circle at 35% 35%, #fff2a8 0%, #ffd76b 18%, transparent 19%),
@@ -823,33 +717,39 @@
   flex-shrink: 0;
 }
 
-.idle-cta__coin-icon::before {
+.generate-btn__coin-icon::before {
   content: '';
   position: absolute;
-  inset: 5px;
+  inset: 4px;
   border-radius: 50%;
   border: 1.5px solid rgba(255, 244, 190, 0.55);
 }
 
-.idle-cta__debit-burst {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 8px 14px;
-  background: rgba(255, 76, 76, 0.14);
-  border: 1px solid rgba(255, 100, 100, 0.45);
-  color: #ff8d8d;
-  font-family: var(--font-mono);
-  font-size: 14px;
-  font-weight: 800;
-  letter-spacing: 1.5px;
-  text-shadow: 0 0 10px rgba(255, 120, 120, 0.4);
-  box-shadow: 0 0 18px rgba(255, 80, 80, 0.12);
+.prompt-ui__generate-wrap {
+  position: relative;
+  flex-shrink: 0;
+  align-self: flex-start;
+  display: flex;
 }
 
-.interaction-hint--warning {
-  color: rgba(255, 126, 126, 0.9);
-  text-shadow: 0 0 5px rgba(255, 90, 90, 0.18);
+.prompt-ui__wallet-warning {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 8px;
+  color: #ff6b6b;
+  text-shadow: 0 0 8px rgba(255, 68, 68, 0.4);
+  text-align: center;
+  line-height: 1.6;
+  margin-top: 10px;
+}
+
+.prompt-ui__error {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 8px;
+  color: #ff6b6b;
+  text-shadow: 0 0 8px rgba(255, 68, 68, 0.4);
+  text-align: left;
+  line-height: 1.6;
+  margin-top: 10px;
 }
 
 .pixel-btn--disabled,
@@ -932,6 +832,7 @@
 .reveal-unlock {
   position: absolute;
   inset: 0;
+  --reveal-shoe-offset-y: -380px;
   z-index: 55;
   pointer-events: none;
   overflow: visible;
@@ -1034,9 +935,14 @@
 /* Reveal title text (always in viewport) */
 .reveal-unlock__shoe-name {
   position: absolute;
-  top: 28px;
-  left: 50%;
-  transform: translateX(-50%);
+  /* Anchor to the middle of the shoe PNG frame (character top + half height). */
+  top: calc(50% + var(--reveal-shoe-offset-y) + 216px);
+  left: 0;
+  right: 0;
+  width: max-content;
+  margin: 0 auto;
+  transform: translateY(-50%);
+  text-align: center;
   z-index: 60;
   padding: 8px 12px;
   border: 1px solid rgba(255, 255, 255, 0.24);
@@ -1044,7 +950,7 @@
   background: rgba(0, 0, 0, 0.35);
   box-shadow: 0 0 16px rgba(255, 255, 255, 0.12);
   font-family: 'Press Start 2P', monospace;
-  font-size: 11px;
+  font-size: 14px;
   line-height: 1.35;
   letter-spacing: 1.2px;
   color: #ffffff;
@@ -1131,17 +1037,31 @@
   bottom: 32px;
   left: 0;
   right: 0;
+  width: max-content;
+  margin: 0 auto;
   display: flex;
-  flex-direction: row;
-  align-items: center;
+  flex-direction: column;
+  align-items: stretch;
   justify-content: center;
-  gap: 16px;
+  gap: 10px;
   z-index: 59;
   pointer-events: auto;
 }
 
 .reveal-unlock__cta-dock .pixel-btn,
 .reveal-unlock__cta-dock .pixel-btn--ghost {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  white-space: nowrap;
+  padding: 14px 20px;
+}
+
+.reveal-unlock__cta-hint {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 10px;
+  color: rgba(255, 255, 255, 0.8);
+  letter-spacing: 0.5px;
   white-space: nowrap;
 }
 
@@ -1233,7 +1153,8 @@
 /* Character container — z-20 sandwiched between particles (z-10) and flame (z-25) */
 .reveal-unlock__character {
   position: relative;
-  top: -380px;
+  top: var(--reveal-shoe-offset-y);
+  left: 20px;
   z-index: 20;
   width: 208px;
   height: 272px;
@@ -1269,22 +1190,7 @@
     0 0 14px 4px rgba(180, 74, 255, 0.5);
 }
 
-.reveal-unlock__fallback-notice {
-  font-family: 'Press Start 2P', monospace;
-  font-size: 8px;
-  letter-spacing: 1px;
-  color: #ff9f43;
-  text-shadow: 0 0 8px rgba(255, 159, 67, 0.4);
-  padding: 5px 12px;
-  border: 1px solid rgba(255, 159, 67, 0.3);
-  border-radius: 6px;
-  background: rgba(255, 159, 67, 0.08);
-  text-align: center;
-  line-height: 1.5;
-  margin-bottom: 4px;
-}
-
-/* Ghost / secondary pixel button for Retry */
+/* Ghost / secondary pixel button */
 .pixel-btn--ghost {
   background: transparent;
   color: #ffe430;
@@ -1591,14 +1497,23 @@
 .prompt-ui {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 10px;
   width: 100%;
 }
 
 .prompt-ui__row {
   display: flex;
-  align-items: center;
-  gap: 10px;
+  align-items: stretch;
+  gap: 16px;
+}
+
+.prompt-ui__left {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 8px;
+  min-width: 0;
 }
 
 .prompt-ui__styles {
@@ -1635,21 +1550,31 @@
 }
 
 .prompt-ui__input-wrap {
-  flex: 1;
+  flex: none;
   position: relative;
 }
 
 .prompt-ui__input {
   width: 100%;
-  padding: 10px 60px 10px 14px;
+  padding: 16px 60px 16px 16px;
   font-family: 'Press Start 2P', monospace;
   font-size: 10px;
   color: var(--shoe-accent);
-  background: rgba(0, 212, 255, 0.06);
-  border: 1px solid rgba(0, 212, 255, 0.3);
-  border-radius: 6px;
+  background: rgba(0, 212, 255, 0.04);
+  border: 1px solid rgba(0, 212, 255, 0.4);
+  border-radius: 8px;
   outline: none;
   text-shadow: 0 0 6px rgba(0, 212, 255, 0.4);
+  animation: prompt-glow 3s ease-in-out infinite;
+}
+
+@keyframes prompt-glow {
+  0%, 100% {
+    box-shadow: 0 0 4px rgba(0, 212, 255, 0.15), 0 0 12px rgba(0, 212, 255, 0.05);
+  }
+  50% {
+    box-shadow: 0 0 8px rgba(0, 212, 255, 0.35), 0 0 24px rgba(0, 212, 255, 0.12);
+  }
 }
 
 .prompt-ui__input::placeholder {
@@ -1678,18 +1603,19 @@
 
 .prompt-ui__presets {
   display: flex;
-  gap: 8px;
+  gap: 12px;
   flex-wrap: wrap;
+  align-items: center;
 }
 
 .prompt-ui__chip {
-  padding: 6px 12px;
+  padding: 8px 12px;
   font-family: 'Press Start 2P', monospace;
   font-size: 8px;
   color: var(--shoe-accent);
-  background: rgba(0, 212, 255, 0.08);
-  border: 1px solid rgba(0, 212, 255, 0.2);
-  border-radius: 20px;
+  background: transparent;
+  border: 1px solid rgba(0, 212, 255, 0.4);
+  border-radius: 999px;
   cursor: pointer;
   transition: all 0.15s ease;
   text-shadow: 0 0 4px rgba(0, 212, 255, 0.3);
@@ -1697,9 +1623,15 @@
 }
 
 .prompt-ui__chip:hover {
+  background: rgba(0, 212, 255, 0.1);
+  border-color: rgba(0, 212, 255, 0.6);
+  box-shadow: 0 0 10px rgba(0, 212, 255, 0.15);
+}
+
+.prompt-ui__chip--active {
   background: rgba(0, 212, 255, 0.15);
-  border-color: rgba(0, 212, 255, 0.5);
-  box-shadow: 0 0 10px rgba(0, 212, 255, 0.2);
+  border-color: var(--shoe-accent);
+  box-shadow: 0 0 12px rgba(0, 212, 255, 0.2);
 }
 
 /* Error input border flash */
@@ -1734,8 +1666,8 @@
   color: rgba(255, 255, 255, 0.3);
   line-height: 1.7;
   letter-spacing: 0.3px;
-  text-align: center;
-  padding-top: 2px;
+  text-align: left;
+  margin-top: 10px;
 }
 
 
