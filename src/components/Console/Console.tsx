@@ -28,7 +28,9 @@ export function Console({
   canAffordGeneration,
 }: ConsoleProps) {
   // Disable layout animation during PROCESSING to prevent height jitter from cycling text
-  const enableLayout = phase !== PHASE.PROCESSING;
+  // Only animate layout when transitioning between IDLE→PROMPT (content size change)
+  // Disable during IDLE (typewriter jitter) and PROCESSING (cycling text jitter)
+  const enableLayout = phase === PHASE.PROMPT;
 
   return (
     <motion.div

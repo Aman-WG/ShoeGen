@@ -5,6 +5,19 @@ import type { ShoeGenerationResult } from '../../engine/types';
 /** Generated shoe asset for now (replace with live result when ready). */
 const REVEAL_SHOE_URL = '/assets/mu_afshoe.png';
 
+const CELEBRATION_LINES = [
+  'Drippiest kicks ready!',
+  'Heat levels: MAXIMUM.',
+  'Fresh out the forge!',
+  'These go crazy.',
+  'Certified grails.',
+  'Main character shoes unlocked.',
+  'The hallways aren\'t ready.',
+  'Shoe game: ASCENDED.',
+  'Straight from the future.',
+  'Fire walk with these.',
+];
+
 interface ShoeRevealProps {
   onEquip: () => void;
   onHover?: () => void;
@@ -43,11 +56,15 @@ export function ShoeReveal({
 }: ShoeRevealProps) {
   const [settled, setSettled] = useState(false);
   const shoeName = toTwoWordName(shoeResult?.shoeName);
+  const [celebrationLine, setCelebrationLine] = useState(() =>
+    CELEBRATION_LINES[Math.floor(Math.random() * CELEBRATION_LINES.length)]
+  );
 
   useEffect(() => {
     const t = setTimeout(() => setSettled(true), CENTER_HOLD_MS);
     return () => clearTimeout(t);
   }, []);
+
 
   return (
     <motion.div
@@ -65,12 +82,12 @@ export function ShoeReveal({
       />
 
       <motion.div
-        className="reveal-unlock__shoe-name"
-        initial={{ opacity: 0, y: -6 }}
+        className="reveal-unlock__celebration"
+        initial={{ opacity: 0, y: -8 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.2, duration: 0.35, ease: 'easeOut' }}
+        transition={{ delay: 0.3, duration: 0.4, ease: 'easeOut' }}
       >
-        {`${shoeName} Sneakers`}
+        {celebrationLine}
       </motion.div>
 
       {/* White flash + star burst (sync with star sound) */}
@@ -197,6 +214,15 @@ export function ShoeReveal({
         </motion.div>
       </div>
 
+      <motion.div
+        className="reveal-unlock__shoe-name-below"
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 1.5, duration: 0.4, ease: 'easeOut' }}
+      >
+        {`${shoeName} Sneakers`}
+      </motion.div>
+
       <AnimatePresence>
         {settled && (
           <motion.div
@@ -205,9 +231,8 @@ export function ShoeReveal({
             animate={{ y: 0, opacity: 1 }}
             transition={{ delay: 0.2, type: 'spring', stiffness: 150, damping: 18 }}
           >
-            <span className="reveal-unlock__cta-hint">Done tweaking? Lock it in.</span>
             <button className="pixel-btn" onClick={onEquip} onMouseEnter={onHover}>
-              Save &amp; Exit
+              Save &amp; Equip
             </button>
           </motion.div>
         )}
