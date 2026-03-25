@@ -18,6 +18,16 @@ const CELEBRATION_LINES = [
   'Fire walk with these.',
 ];
 
+const SAVED_LINES = [
+  'These awesome kicks have been saved to your shoe inventory.',
+  'These dazzling sneakers have been saved to your shoe inventory.',
+  'These lovely shoes have been saved to your shoe inventory.',
+  'These fire kicks have been saved to your shoe inventory.',
+  'These sick sneakers have been saved to your shoe inventory.',
+  'These elite shoes have been saved to your shoe inventory.',
+  'These legendary kicks have been saved to your shoe inventory.',
+];
+
 interface ShoeRevealProps {
   onEquip: () => void;
   onHover?: () => void;
@@ -56,8 +66,11 @@ export function ShoeReveal({
 }: ShoeRevealProps) {
   const [settled, setSettled] = useState(false);
   const shoeName = toTwoWordName(shoeResult?.shoeName);
-  const [celebrationLine, setCelebrationLine] = useState(() =>
+  const [celebrationLine] = useState(() =>
     CELEBRATION_LINES[Math.floor(Math.random() * CELEBRATION_LINES.length)]
+  );
+  const [savedLine] = useState(() =>
+    SAVED_LINES[Math.floor(Math.random() * SAVED_LINES.length)]
   );
 
   useEffect(() => {
@@ -87,7 +100,15 @@ export function ShoeReveal({
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.3, duration: 0.4, ease: 'easeOut' }}
       >
-        {celebrationLine}
+        {`${shoeName} Sneakers`}
+        <motion.div
+          className="reveal-unlock__saved-subtext"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.5, duration: 0.4 }}
+        >
+          {savedLine}
+        </motion.div>
       </motion.div>
 
       {/* White flash + star burst (sync with star sound) */}
@@ -150,11 +171,24 @@ export function ShoeReveal({
             animate={{
               opacity: [0, 1, 1, 1],
               scale: [0, 0, 1.25, 1],
+              y: [0, -6, 0, 4, 0],
             }}
             transition={{
-              duration: 1.35,
-              times: [0, 0.35, 0.85, 1],
-              ease: ['easeOut', 'easeOut', [0.22, 1, 0.36, 1]],
+              opacity: {
+                duration: 1.35,
+                times: [0, 0.35, 0.85, 1],
+              },
+              scale: {
+                duration: 1.35,
+                times: [0, 0.35, 0.85, 1],
+                ease: ['easeOut', 'easeOut', [0.22, 1, 0.36, 1]],
+              },
+              y: {
+                delay: 1.5,
+                duration: 4,
+                repeat: Infinity,
+                ease: 'easeInOut',
+              },
             }}
           >
             <motion.img
@@ -170,19 +204,12 @@ export function ShoeReveal({
                   'brightness(1) contrast(1)',
                   'brightness(1) contrast(1)',
                 ],
-                y: [0, -6, 0, 4, 0],
               }}
               transition={{
                 filter: {
                   duration: 1.35,
                   times: [0, 0.7, 0.9, 1],
                   ease: 'easeOut',
-                },
-                y: {
-                  delay: 1.5,
-                  duration: 4,
-                  repeat: Infinity,
-                  ease: 'easeInOut',
                 },
               }}
             />
@@ -214,15 +241,6 @@ export function ShoeReveal({
         </motion.div>
       </div>
 
-      <motion.div
-        className="reveal-unlock__shoe-name-below"
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 1.5, duration: 0.4, ease: 'easeOut' }}
-      >
-        {`${shoeName} Sneakers`}
-      </motion.div>
-
       <AnimatePresence>
         {settled && (
           <motion.div
@@ -232,7 +250,7 @@ export function ShoeReveal({
             transition={{ delay: 0.2, type: 'spring', stiffness: 150, damping: 18 }}
           >
             <button className="pixel-btn" onClick={onEquip} onMouseEnter={onHover}>
-              Save &amp; Equip
+              Equip Now
             </button>
           </motion.div>
         )}

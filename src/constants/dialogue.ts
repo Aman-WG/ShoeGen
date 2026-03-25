@@ -12,7 +12,7 @@ export const DIALOGUE: Record<Phase, DialogueLine[]> = {
   ],
 
   [PHASE.PROMPT]: [
-    { text: 'Describe the kicks you want. Go crazy.', delay: 0 },
+    { text: 'Select the style of your kicks.', delay: 0 },
   ],
 
   [PHASE.PROCESSING]: [

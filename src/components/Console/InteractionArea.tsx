@@ -21,7 +21,13 @@ const PRESETS = [
   { label: '🌀 Void Runners', prompt: 'Dark void running shoes with purple energy swirls and gravity-defying soles' },
 ];
 
-const SHOE_STYLES = ['Low Ankle', 'High Ankle', 'Slip-On', 'Boots'];
+const SHOE_STYLES = [
+  { id: 'high-top', label: 'High-top', icon: '/icons/shoe-styles/high-top.png' },
+  { id: 'mid-top', label: 'Mid-top', icon: '/icons/shoe-styles/mid-top.png' },
+  { id: 'pointy-high', label: 'Pointy high', icon: '/icons/shoe-styles/pointy-high.png' },
+  { id: 'pointy-mid', label: 'Pointy mid', icon: '/icons/shoe-styles/pointy-mid.png' },
+  { id: 'strap-shoes', label: 'Strap shoes', icon: '/icons/shoe-styles/strap-shoes.png' },
+];
 
 interface InteractionAreaProps {
   phase: Phase;
@@ -129,107 +135,123 @@ function PromptInputUI({
 
   return (
     <div className="prompt-ui">
+      {/* Step 1: Style selection — always visible */}
       <div className="prompt-ui__styles" role="group" aria-label="Shoe style">
         {SHOE_STYLES.map((style) => {
-          const isActive = selectedStyle === style;
+          const isActive = selectedStyle === style.id;
           return (
             <motion.button
-              key={style}
+              key={style.id}
               type="button"
               className={`prompt-ui__style-chip ${isActive ? 'prompt-ui__style-chip--active' : ''}`}
-              onClick={() => setSelectedStyle(isActive ? null : style)}
+              onClick={() => setSelectedStyle(isActive ? null : style.id)}
               onMouseEnter={onHover}
-              whileHover={{ scale: 1.03, y: -1 }}
+              whileHover={{ scale: 1.03, y: -2 }}
               whileTap={{ scale: 0.97 }}
               aria-pressed={isActive}
             >
-              {style}
+              <img src={style.icon} alt="" className="prompt-ui__style-icon" draggable={false} />
+              <span>{style.label}</span>
             </motion.button>
           );
         })}
       </div>
 
-      <div className="prompt-ui__row">
-        <div className="prompt-ui__left">
-          <div className="prompt-ui__input-wrap">
-            <input
-              type="text"
-              className={`prompt-ui__input${hasError ? ' prompt-ui__input--error' : ''}`}
-              placeholder={PLACEHOLDERS[placeholderIdx]}
-              value={text}
-              onChange={(e) => { setText(e.target.value); setStopCycling(true); }}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter') handleSubmit();
-              }}
-              autoFocus
-            />
-            <span className={`prompt-ui__wc ${overLimit ? 'prompt-ui__wc--over' : ''}`}>
-              {wordCount}/{PROMPT_LIMIT}
-            </span>
-          </div>
-
-          <div className="prompt-ui__presets">
-            {PRESETS.map((p) => (
-              <motion.button
-                key={p.prompt}
-                className={`prompt-ui__chip ${text === p.prompt ? 'prompt-ui__chip--active' : ''}`}
-                onClick={() => {
-                  if (text === p.prompt) {
-                    setText('');
-                    setStopCycling(false);
-                  } else {
-                    setText(p.prompt);
-                    setStopCycling(true);
-                  }
-                }}
-                onMouseEnter={onHover}
-                whileHover={{ scale: 1.04, y: -1 }}
-                whileTap={{ scale: 0.96 }}
-              >
-                {p.label}
-              </motion.button>
-            ))}
-          </div>
-        </div>
-
-        <div className="prompt-ui__generate-wrap">
-          <motion.button
-            className={`pixel-btn pixel-btn--generate ${!canSubmit ? 'pixel-btn--disabled' : ''}`}
-            onClick={handleSubmit}
-            onMouseEnter={canSubmit ? onHover : undefined}
-            disabled={!canSubmit}
-            whileHover={canSubmit ? { scale: 1.06, y: -2 } : undefined}
-            whileTap={canSubmit ? { scale: 0.94 } : undefined}
-            transition={{ type: 'spring', stiffness: 400, damping: 15 }}
-          >
-            <span className="generate-btn__label">FORGE</span>
-            <span className="generate-btn__cost-pill">
-              <span className="generate-btn__coin-icon" aria-hidden="true" />
-              <span>{generateCost.toLocaleString()}</span>
-            </span>
-          </motion.button>
-        </div>
-      </div>
-
-      <AnimatePresence mode="wait">
-        {hasError ? (
+      {/* Step 2: Prompt section — reveals after style is selected */}
+      <AnimatePresence>
+        {selectedStyle && (
           <motion.div
-            key="error"
-            className="prompt-ui__error"
-            initial={{ opacity: 0, y: 4 }}
+            className="prompt-ui__prompt-section"
+            initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -4 }}
-            transition={{ duration: 0.15 }}
+            exit={{ opacity: 0, y: 12 }}
+            transition={{ duration: 0.3, ease: 'easeOut' }}
           >
-            Content flagged — try a different prompt.
-          </motion.div>
-        ) : hasWallet && !canAffordGeneration ? (
-          <motion.div key="wallet" className="prompt-ui__wallet-warning" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-            Not enough coins. You need {(generateCost - (coinBalance ?? 0)).toLocaleString()} more to forge.
-          </motion.div>
-        ) : (
-          <motion.div key="disclaimer" className="prompt-ui__disclaimer" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-            Prompts are logged and visible to your teacher. Keep it legendary, not sus.
+            <div className="prompt-ui__step2-title">Now describe your kicks. Be wild!</div>
+            <div className="prompt-ui__row">
+              <div className="prompt-ui__left">
+                <div className="prompt-ui__input-wrap">
+                  <input
+                    type="text"
+                    className={`prompt-ui__input${hasError ? ' prompt-ui__input--error' : ''}`}
+                    placeholder={PLACEHOLDERS[placeholderIdx]}
+                    value={text}
+                    onChange={(e) => { setText(e.target.value); setStopCycling(true); }}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') handleSubmit();
+                    }}
+                    autoFocus
+                  />
+                  <span className={`prompt-ui__wc ${overLimit ? 'prompt-ui__wc--over' : ''}`}>
+                    {wordCount}/{PROMPT_LIMIT}
+                  </span>
+                </div>
+
+                <div className="prompt-ui__presets">
+                  {PRESETS.map((p) => (
+                    <motion.button
+                      key={p.prompt}
+                      className={`prompt-ui__chip ${text === p.prompt ? 'prompt-ui__chip--active' : ''}`}
+                      onClick={() => {
+                        if (text === p.prompt) {
+                          setText('');
+                          setStopCycling(false);
+                        } else {
+                          setText(p.prompt);
+                          setStopCycling(true);
+                        }
+                      }}
+                      onMouseEnter={onHover}
+                      whileHover={{ scale: 1.04, y: -1 }}
+                      whileTap={{ scale: 0.96 }}
+                    >
+                      {p.label}
+                    </motion.button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="prompt-ui__generate-wrap">
+                <motion.button
+                  className={`pixel-btn pixel-btn--generate ${!canSubmit ? 'pixel-btn--disabled' : ''}`}
+                  onClick={handleSubmit}
+                  onMouseEnter={canSubmit ? onHover : undefined}
+                  disabled={!canSubmit}
+                  whileHover={canSubmit ? { scale: 1.06, y: -2 } : undefined}
+                  whileTap={canSubmit ? { scale: 0.94 } : undefined}
+                  transition={{ type: 'spring', stiffness: 400, damping: 15 }}
+                >
+                  <span className="generate-btn__label">FORGE</span>
+                  <span className="generate-btn__cost-pill">
+                    <span className="generate-btn__coin-icon" aria-hidden="true" />
+                    <span>{generateCost.toLocaleString()}</span>
+                  </span>
+                </motion.button>
+              </div>
+            </div>
+
+            <AnimatePresence mode="wait">
+              {hasError ? (
+                <motion.div
+                  key="error"
+                  className="prompt-ui__error"
+                  initial={{ opacity: 0, y: 4 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -4 }}
+                  transition={{ duration: 0.15 }}
+                >
+                  Content flagged — try a different prompt.
+                </motion.div>
+              ) : hasWallet && !canAffordGeneration ? (
+                <motion.div key="wallet" className="prompt-ui__wallet-warning" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+                  Not enough coins. You need {(generateCost - (coinBalance ?? 0)).toLocaleString()} more to forge.
+                </motion.div>
+              ) : (
+                <motion.div key="disclaimer" className="prompt-ui__disclaimer" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+                  Prompts are logged and visible to your teacher. Keep it legendary, not sus.
+                </motion.div>
+              )}
+            </AnimatePresence>
           </motion.div>
         )}
       </AnimatePresence>

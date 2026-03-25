@@ -507,7 +507,7 @@
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
-  gap: 16px;
+  gap: 12px;
   padding: 16px 32px 12px;
   overflow: visible;
   position: relative;
@@ -952,11 +952,25 @@
   pointer-events: none;
 }
 
-/* Shoe name tag — tight caption below shoe, part of reveal composition */
+.reveal-unlock__saved-subtext {
+  font-family: var(--font-mono);
+  font-size: 15.5px;
+  font-weight: 500;
+  line-height: 1.5;
+  letter-spacing: 0.5px;
+  color: var(--shoe-accent);
+  text-transform: none;
+  text-shadow:
+    0 0 6px rgba(0, 212, 255, 0.6),
+    0 0 20px rgba(0, 212, 255, 0.2);
+  margin-top: 10px;
+}
+
+/* Shoe name tag — inside character div, floats with shoe */
 .reveal-unlock__shoe-name-below {
   position: absolute;
-  bottom: auto;
-  top: calc(50% + 160px);
+  top: 100%;
+  margin-top: 12px;
   left: 50%;
   transform: translateX(-50%);
   text-align: center;
@@ -1244,7 +1258,7 @@
   }
 
   .prompt-ui__styles {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    flex-wrap: wrap;
   }
 }
 
@@ -1515,7 +1529,7 @@
 .prompt-ui {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 12px;
   width: 100%;
 }
 
@@ -1535,36 +1549,76 @@
 }
 
 .prompt-ui__styles {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 8px;
+  display: flex;
+  gap: 16px;
 }
 
 .prompt-ui__style-chip {
-  padding: 9px 8px;
-  font-family: 'Press Start 2P', monospace;
-  font-size: 8px;
-  color: var(--shoe-accent-dim);
-  background: rgba(0, 212, 255, 0.08);
-  border: 1px solid rgba(0, 212, 255, 0.24);
+  flex: 1;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 12px;
+  font-family: var(--font-mono);
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--shoe-accent);
+  background: rgba(9, 9, 9, 0.8);
+  border: 1px solid rgba(65, 212, 253, 0.6);
   border-radius: 8px;
   cursor: pointer;
   transition: all 0.15s ease;
-  text-transform: uppercase;
-  text-shadow: 0 0 6px rgba(0, 212, 255, 0.2);
+  line-height: 1.3;
+}
+
+.prompt-ui__style-icon {
+  width: 40px;
+  height: 40px;
+  object-fit: contain;
+  flex-shrink: 0;
+  filter: brightness(0) saturate(100%) invert(78%) sepia(60%) saturate(1200%) hue-rotate(155deg) brightness(102%) contrast(101%);
+  opacity: 0.8;
 }
 
 .prompt-ui__style-chip:hover {
-  background: rgba(0, 212, 255, 0.14);
-  border-color: rgba(0, 212, 255, 0.5);
+  background: rgba(0, 212, 255, 0.1);
+  border-color: rgba(65, 212, 253, 0.8);
+  box-shadow: 0 0 12px rgba(0, 212, 255, 0.15);
 }
 
 .prompt-ui__style-chip--active {
   color: #040612;
   background: linear-gradient(135deg, #00b4e0, var(--shoe-accent));
-  border-color: rgba(0, 212, 255, 0.85);
+  border-color: rgba(65, 212, 253, 0.9);
   text-shadow: none;
-  box-shadow: 0 0 14px rgba(0, 212, 255, 0.25);
+  box-shadow: 0 0 16px rgba(0, 212, 255, 0.3);
+}
+
+.prompt-ui__style-chip--active .prompt-ui__style-icon {
+  filter: brightness(0) invert(0);
+  opacity: 1;
+}
+
+/* Progressive reveal section */
+.prompt-ui__prompt-section {
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding-top: 0;
+}
+
+.prompt-ui__step2-title {
+  font-family: var(--font-mono);
+  font-size: 15.5px;
+  font-weight: 500;
+  line-height: 1.5;
+  color: var(--shoe-accent);
+  text-shadow:
+    0 0 6px rgba(0, 212, 255, 0.6),
+    0 0 20px rgba(0, 212, 255, 0.2);
 }
 
 .prompt-ui__input-wrap {
